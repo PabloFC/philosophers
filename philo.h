@@ -35,9 +35,13 @@ struct s_rules
 };
 
 int init_all(t_rules *rules, int argc, char **argv);
-long long timestamp(void);
-long long timestamp(void);
+int start_simulation(t_rules *rules);
+void *routine(void *arg);
+void *monitor(void *arg);
+void print_status(t_philo *philo, char *status);
 void ft_usleep(int ms);
+long long timestamp(void);
 int ft_atoi(const char *str);
+void cleanup(t_rules *rules);
 
 #endif
