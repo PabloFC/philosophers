@@ -40,29 +40,37 @@ static int init_philos(t_rules *rules)
     return (0);
 }
 
-static int parse_args(t_rules *rules, int argc, char **argv)
+static int	parse_args(t_rules *rules, int argc, char **argv)
 {
-    if (argc != 5 && argc != 6)
-        return (1);
-    rules->nb_philo = atoi(argv[1]);
-    rules->time_to_die = atoi(argv[2]);
-    rules->time_to_eat = atoi(argv[3]);
-    rules->time_to_sleep = atoi(argv[4]);
-    rules->must_eat = (argc == 6) ? atoi(argv[5]) : -1;
-    if (rules->nb_philo <= 0 || rules->time_to_die <= 0 || rules->time_to_eat <= 0 || rules->time_to_sleep <= 0 || (argc == 6 && rules->must_eat <= 0))
-        return (1);
-    rules->died = 0;
-    return (0);
+	if (argc != 5 && argc != 6)
+		return (1);
+	rules->nb_philo = ft_atoi(argv[1]);
+	rules->time_to_die = ft_atoi(argv[2]);
+	rules->time_to_eat = ft_atoi(argv[3]);
+	rules->time_to_sleep = ft_atoi(argv[4]);
+	if (argc == 6)
+		rules->must_eat = ft_atoi(argv[5]);
+	else
+		rules->must_eat = -1;
+	if (rules->nb_philo <= 0
+		|| rules->time_to_die <= 0
+		|| rules->time_to_eat <= 0
+		|| rules->time_to_sleep <= 0)
+		return (1);
+	if (argc == 6 && rules->must_eat <= 0)
+		return (1);
+	rules->died = 0;
+	return (0);
 }
 
 int init_all(t_rules *rules, int argc, char **argv)
 {
     if (parse_args(rules, argc, argv))
-        return (printf("Error: argumentos inválidos\n"), 1);
+        return (printf("Error: invalid arguments\n"), 1);
     if (init_mutexes(rules))
-        return (printf("Error: fallo al inicializar mutexes\n"), 1);
+        return (printf("Error: failed to initialize mutexes\n"), 1);
     if (init_philos(rules))
-        return (printf("Error: fallo al inicializar filósofos\n"), 1);
+        return (printf("Error: failed to initialize philosophers\n"), 1);
     rules->start_time = timestamp();
     return (0);
 }
