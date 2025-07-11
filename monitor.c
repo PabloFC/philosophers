@@ -12,9 +12,9 @@
 
 #include "philo.h"
 
-static int	all_ate_enough(t_rules *rules)
+static int all_ate_enough(t_rules *rules)
 {
-	int	i;
+	int i;
 
 	if (rules->must_eat <= 0)
 		return (0);
@@ -28,20 +28,19 @@ static int	all_ate_enough(t_rules *rules)
 	return (1);
 }
 
-static int	check_death(t_rules *rules, int i)
+static int check_death(t_rules *rules, int i)
 {
-	long long	time;
+	long long now = timestamp();
 
-	time = timestamp();
-	if ((time - rules->philos[i].last_meal) > rules->time_to_die)
+	if ((now - rules->philos[i].last_meal) > rules->time_to_die)
 	{
 		pthread_mutex_lock(&rules->print_mutex);
 		if (!rules->died)
 		{
 			rules->died = 1;
 			printf("%lld %d died\n",
-				time - rules->start_time,
-				rules->philos[i].id);
+				   now - rules->start_time,
+				   rules->philos[i].id);
 		}
 		pthread_mutex_unlock(&rules->print_mutex);
 		return (1);
@@ -49,12 +48,12 @@ static int	check_death(t_rules *rules, int i)
 	return (0);
 }
 
-void	*monitor(void *arg)
+void *monitor(void *arg)
 {
-	t_rules	*rules;
-	int		i;
+	t_rules *rules = (t_rules *)arg;
+	int i;
 
-	rules = (t_rules *)arg;
+	usleep(100);
 	while (!rules->died)
 	{
 		i = 0;
