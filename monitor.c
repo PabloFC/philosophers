@@ -12,9 +12,9 @@
 
 #include "philo.h"
 
-static int	all_ate_enough(t_rules *rules)
+static int all_ate_enough(t_rules *rules)
 {
-	int	i;
+	int i;
 
 	if (rules->must_eat <= 0)
 		return (0);
@@ -28,9 +28,9 @@ static int	all_ate_enough(t_rules *rules)
 	return (1);
 }
 
-static int	check_death(t_rules *rules, int i)
+static int check_death(t_rules *rules, int i)
 {
-	long long	time;
+	long long time;
 
 	time = timestamp();
 	if ((time - rules->philos[i].last_meal) > rules->time_to_die)
@@ -40,8 +40,8 @@ static int	check_death(t_rules *rules, int i)
 		{
 			rules->died = 1;
 			printf("%lld %d died\n",
-				time - rules->start_time,
-				rules->philos[i].id);
+				   time - rules->start_time,
+				   rules->philos[i].id);
 		}
 		pthread_mutex_unlock(&rules->print_mutex);
 		return (1);
@@ -49,10 +49,10 @@ static int	check_death(t_rules *rules, int i)
 	return (0);
 }
 
-void	*monitor(void *arg)
+void *monitor(void *arg)
 {
-	t_rules	*rules;
-	int		i;
+	t_rules *rules;
+	int i;
 
 	rules = (t_rules *)arg;
 	while (!rules->died)
@@ -66,7 +66,9 @@ void	*monitor(void *arg)
 		}
 		if (all_ate_enough(rules))
 		{
+			pthread_mutex_lock(&rules->print_mutex);
 			rules->died = 1;
+			pthread_mutex_unlock(&rules->print_mutex);
 			return (NULL);
 		}
 		usleep(1000);
