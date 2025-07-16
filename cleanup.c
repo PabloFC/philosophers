@@ -24,6 +24,7 @@ static void	destroy_mutexes(t_rules *rules)
 		i++;
 	}
 	pthread_mutex_destroy(&rules->print_mutex);
+	pthread_mutex_destroy(&rules->death_mutex);
 }
 
 void	cleanup(t_rules *rules)

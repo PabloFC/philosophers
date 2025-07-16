@@ -29,7 +29,7 @@ typedef struct s_philo
 	pthread_t		thread;
 	pthread_mutex_t	*left_fork;
 	pthread_mutex_t	*right_fork;
-	pthread_mutex_t	meal_mutex; // 👈 añadido
+	pthread_mutex_t	meal_mutex;
 	struct s_rules	*rules;
 }	t_philo;
 
@@ -44,11 +44,13 @@ typedef struct s_rules
 	long long		start_time;
 	pthread_mutex_t	*forks;
 	pthread_mutex_t	print_mutex;
+	pthread_mutex_t	death_mutex;
 	t_philo			*philos;
 }	t_rules;
 
 int			init_all(t_rules *rules, int argc, char **argv);
 int			start_simulation(t_rules *rules);
+int			philo_sleep_think(t_philo *philo);
 void		*routine(void *arg);
 void		*monitor(void *arg);
 void		print_status(t_philo *philo, char *status);

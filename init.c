@@ -33,6 +33,8 @@ static int	init_mutexes(t_rules *rules)
 	}
 	if (pthread_mutex_init(&rules->print_mutex, NULL) != 0)
 		return (1);
+	if (pthread_mutex_init(&rules->death_mutex, NULL) != 0)
+		return (1);
 	return (0);
 }
 
@@ -56,9 +58,8 @@ static int	init_philos(t_rules *rules)
 		rules->philos[i].last_meal = 0;
 		rules->philos[i].left_fork = &rules->forks[i];
 		rules->philos[i].right_fork = &rules->forks[(i + 1) % rules->nb_philo];
+		pthread_mutex_init(&rules->philos[i].meal_mutex, NULL);
 		rules->philos[i].rules = rules;
-		if (pthread_mutex_init(&rules->philos[i].meal_mutex, NULL) != 0)
-			return (1);
 		i++;
 	}
 	return (0);
