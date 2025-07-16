@@ -35,13 +35,21 @@ static void eat(t_philo *philo)
 	pthread_mutex_unlock(philo->right_fork);
 }
 
-void *routine(void *arg)
+void	*routine(void *arg)
 {
-	t_philo *philo;
+	t_philo	*philo;
 
 	philo = (t_philo *)arg;
 	if (philo->id % 2 == 0)
 		usleep(1000);
+	if (philo->rules->nb_philo == 1)
+	{
+		pthread_mutex_lock(philo->left_fork);
+		print_status(philo, "has taken a fork");
+		ft_usleep(philo->rules->time_to_die);
+		pthread_mutex_unlock(philo->left_fork);
+		return (NULL);
+	}
 	while (1)
 	{
 		if (philo->rules->died)
@@ -55,3 +63,4 @@ void *routine(void *arg)
 	}
 	return (NULL);
 }
+
