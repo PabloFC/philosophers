@@ -53,3 +53,11 @@ int	ft_atoi(const char *str)
 	}
 	return (sign * result);
 }
+
+static int	philo_sleep_think(t_philo *philo)
+{
+	print_status(philo, "is sleeping");
+	ft_usleep(philo->rules->time_to_sleep);
+	print_status(philo, "is thinking");
+	return (0);
+}

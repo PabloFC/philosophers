@@ -55,27 +55,19 @@ static void	eat(t_philo *philo)
 	pthread_mutex_unlock(philo->right_fork);
 }
 
-static int	philo_sleep_think(t_philo *philo)
-{
-	print_status(philo, "is sleeping");
-	ft_usleep(philo->rules->time_to_sleep);
-	print_status(philo, "is thinking");
-	return (0);
-}
-
 static void	philo_loop(t_philo *philo)
 {
 	while (1)
 	{
 		if (philo->rules->died)
-			break;
+			break ;
 		eat(philo);
 		pthread_mutex_lock(&philo->meal_mutex);
 		if (philo->rules->must_eat > 0
 			&& philo->meals_eaten >= philo->rules->must_eat)
 		{
 			pthread_mutex_unlock(&philo->meal_mutex);
-			break;
+			break ;
 		}
 		pthread_mutex_unlock(&philo->meal_mutex);
 		philo_sleep_think(philo);
