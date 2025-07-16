@@ -55,15 +55,31 @@ static void	eat(t_philo *philo)
 	pthread_mutex_unlock(philo->right_fork);
 }
 
-static int	is_done_eating(t_philo *philo)
+static int	philo_sleep_think(t_philo *philo)
 {
-	int	done;
+	print_status(philo, "is sleeping");
+	ft_usleep(philo->rules->time_to_sleep);
+	print_status(philo, "is thinking");
+	return (0);
+}
 
-	pthread_mutex_lock(&philo->meal_mutex);
-	done = (philo->rules->must_eat > 0
-			&& philo->meals_eaten >= philo->rules->must_eat);
-	pthread_mutex_unlock(&philo->meal_mutex);
-	return (done);
+static void	philo_loop(t_philo *philo)
+{
+	while (1)
+	{
+		if (philo->rules->died)
+			break;
+		eat(philo);
+		pthread_mutex_lock(&philo->meal_mutex);
+		if (philo->rules->must_eat > 0
+			&& philo->meals_eaten >= philo->rules->must_eat)
+		{
+			pthread_mutex_unlock(&philo->meal_mutex);
+			break;
+		}
+		pthread_mutex_unlock(&philo->meal_mutex);
+		philo_sleep_think(philo);
+	}
 }
 
 void	*routine(void *arg)
@@ -81,14 +97,6 @@ void	*routine(void *arg)
 		pthread_mutex_unlock(philo->left_fork);
 		return (NULL);
 	}
-	while (!philo->rules->died)
-	{
-		eat(philo);
-		if (is_done_eating(philo))
-			break ;
-		print_status(philo, "is sleeping");
-		ft_usleep(philo->rules->time_to_sleep);
-		print_status(philo, "is thinking");
-	}
+	philo_loop(philo);
 	return (NULL);
 }
