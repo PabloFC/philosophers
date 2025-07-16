@@ -29,10 +29,8 @@ static int	all_ate_enough(t_rules *rules)
 	int	i;
 	int	count;
 
-	if (rules->must_eat <= 0)
-		return (0);
-	count = 0;
 	i = 0;
+	count = 0;
 	while (i < rules->nb_philo)
 	{
 		pthread_mutex_lock(&rules->philos[i].meal_mutex);
@@ -41,55 +39,40 @@ static int	all_ate_enough(t_rules *rules)
 		pthread_mutex_unlock(&rules->philos[i].meal_mutex);
 		i++;
 	}
-	return (count == rules->nb_philo);
+	return (rules->must_eat > 0 && count == rules->nb_philo);
 }
 
-static int	check_philos(t_rules *rules)
+static void	handle_death(t_rules *rules, int i)
 {
-	int	i;
-
-	i = 0;
-	while (i < rules->nb_philo)
+	pthread_mutex_lock(&rules->death_mutex);
+	if (!rules->died)
 	{
-		if (check_death(&rules->philos[i]))
-		{
-			pthread_mutex_lock(&rules->death_mutex);
-			if (!rules->died)
-			{
-				rules->died = 1;
-				pthread_mutex_lock(&rules->print_mutex);
-				printf("%lld %d died\n",
-					timestamp() - rules->start_time,
-					rules->philos[i].id);
-				pthread_mutex_unlock(&rules->print_mutex);
-			}
-			pthread_mutex_unlock(&rules->death_mutex);
-			return (1);
-		}
-		i++;
+		rules->died = 1;
+		pthread_mutex_lock(&rules->print_mutex);
+		printf("%lld %d died\n",
+			timestamp() - rules->start_time, rules->philos[i].id);
+		pthread_mutex_unlock(&rules->print_mutex);
 	}
-	return (0);
+	pthread_mutex_unlock(&rules->death_mutex);
 }
 
 void	*monitor(void *arg)
 {
 	t_rules	*rules;
+	int		i;
 
 	rules = (t_rules *)arg;
 	while (1)
 	{
-		pthread_mutex_lock(&rules->death_mutex);
-		if (rules->died)
+		i = 0;
+		while (i < rules->nb_philo)
 		{
-			pthread_mutex_unlock(&rules->death_mutex);
-			break ;
+			if (check_death(&rules->philos[i]))
+				return (handle_death(rules, i), NULL);
+			i++;
 		}
-		pthread_mutex_unlock(&rules->death_mutex);
-		if (check_philos(rules))
-			return (NULL);
 		if (all_ate_enough(rules))
 			return (NULL);
 		usleep(1000);
 	}
-	return (NULL);
 }
