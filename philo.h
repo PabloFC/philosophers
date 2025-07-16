@@ -19,7 +19,7 @@
 # include <unistd.h>
 # include <sys/time.h>
 
-typedef struct s_rules	t_rules;
+struct	s_rules;
 
 typedef struct s_philo
 {
@@ -29,7 +29,8 @@ typedef struct s_philo
 	pthread_t		thread;
 	pthread_mutex_t	*left_fork;
 	pthread_mutex_t	*right_fork;
-	t_rules			*rules;
+	pthread_mutex_t	meal_mutex; // 👈 añadido
+	struct s_rules	*rules;
 }	t_philo;
 
 typedef struct s_rules

@@ -12,27 +12,58 @@
 
 #include "philo.h"
 
-void print_status(t_philo *philo, char *status)
+void	print_status(t_philo *philo, char *status)
 {
 	pthread_mutex_lock(&philo->rules->print_mutex);
 	if (!philo->rules->died)
 		printf("%lld %d %s\n", timestamp() - philo->rules->start_time,
-			   philo->id, status);
+			philo->id, status);
 	pthread_mutex_unlock(&philo->rules->print_mutex);
 }
 
-static void eat(t_philo *philo)
+static void	take_forks(t_philo *philo)
 {
-	pthread_mutex_lock(philo->left_fork);
+	pthread_mutex_t	*first;
+	pthread_mutex_t	*second;
+
+	if (philo->left_fork < philo->right_fork)
+	{
+		first = philo->left_fork;
+		second = philo->right_fork;
+	}
+	else
+	{
+		first = philo->right_fork;
+		second = philo->left_fork;
+	}
+	pthread_mutex_lock(first);
 	print_status(philo, "has taken a fork");
-	pthread_mutex_lock(philo->right_fork);
+	pthread_mutex_lock(second);
 	print_status(philo, "has taken a fork");
+}
+
+static void	eat(t_philo *philo)
+{
+	take_forks(philo);
 	print_status(philo, "is eating");
+	pthread_mutex_lock(&philo->meal_mutex);
 	philo->last_meal = timestamp();
 	philo->meals_eaten++;
+	pthread_mutex_unlock(&philo->meal_mutex);
 	ft_usleep(philo->rules->time_to_eat);
 	pthread_mutex_unlock(philo->left_fork);
 	pthread_mutex_unlock(philo->right_fork);
+}
+
+static int	is_done_eating(t_philo *philo)
+{
+	int	done;
+
+	pthread_mutex_lock(&philo->meal_mutex);
+	done = (philo->rules->must_eat > 0
+			&& philo->meals_eaten >= philo->rules->must_eat);
+	pthread_mutex_unlock(&philo->meal_mutex);
+	return (done);
 }
 
 void	*routine(void *arg)
@@ -50,17 +81,14 @@ void	*routine(void *arg)
 		pthread_mutex_unlock(philo->left_fork);
 		return (NULL);
 	}
-	while (1)
+	while (!philo->rules->died)
 	{
-		if (philo->rules->died)
-			break;
 		eat(philo);
-		if (philo->rules->must_eat > 0 && philo->meals_eaten >= philo->rules->must_eat)
-			break;
+		if (is_done_eating(philo))
+			break ;
 		print_status(philo, "is sleeping");
 		ft_usleep(philo->rules->time_to_sleep);
 		print_status(philo, "is thinking");
 	}
 	return (NULL);
 }
-

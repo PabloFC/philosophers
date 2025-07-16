@@ -20,6 +20,7 @@ static void	destroy_mutexes(t_rules *rules)
 	while (i < rules->nb_philo)
 	{
 		pthread_mutex_destroy(&rules->forks[i]);
+		pthread_mutex_destroy(&rules->philos[i].meal_mutex);
 		i++;
 	}
 	pthread_mutex_destroy(&rules->print_mutex);
